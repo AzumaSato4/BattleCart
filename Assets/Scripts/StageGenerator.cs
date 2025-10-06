@@ -17,7 +17,7 @@ public class StageGenerator : MonoBehaviour
     //現在生成したオブジェクトの管理用
     public List<GameObject> generatedStageList = new List<GameObject>();
 
-    private void Start()
+    void Start()
     {
         //Transformを獲得
         player = GameObject.FindGameObjectWithTag("Player").transform;
@@ -26,14 +26,14 @@ public class StageGenerator : MonoBehaviour
         UpdateStage(preInstantiate);
     }
 
-    private void Update()
+    void Update()
     {
         if (player != null)
         {
-            //キャラクターの位置から現在のステージチップのインデックスを計算
+            // キャラクターの位置から現在のステージチップのインデックスを計算
             int charaPositionIndex = (int)(player.position.z / StageChipSize);
 
-            //次のステージチップに入ったらステージの更新処理を行う
+            // 次のステージチップに入ったらステージの更新処理をおこなう
             if (charaPositionIndex + preInstantiate > currentChipIndex)
             {
                 UpdateStage(charaPositionIndex + preInstantiate);
@@ -41,37 +41,41 @@ public class StageGenerator : MonoBehaviour
         }
     }
 
-    //指定のIndexまでのステージチップを生成して、管理下に置く
+    // 指定のIndexまでのステージチップを生成して、管理化に置く
     void UpdateStage(int toChipIndex)
     {
         if (toChipIndex <= currentChipIndex) return;
 
-        //指定のステージチップまでを生成
-        for (int i = currentChipIndex; i <= toChipIndex; i++)
+        // 指定のステージチップまでを作成 
+        for (int i = currentChipIndex + 1; i <= toChipIndex; i++)
         {
             GameObject stageObject = GenerateStage(i);
 
-            //生成したステージチップを管理リストに追加
+            // 生成したステージチップを管理リストに追加
             generatedStageList.Add(stageObject);
         }
 
-        //ステージ保持上限内になるまで古いステージを削除
+        // ステージ保持上限内になるまで古いステージを削除
         while (generatedStageList.Count > preInstantiate + 2) DestroyOldestStage();
 
         currentChipIndex = toChipIndex;
     }
 
-    //指定のインデックス位置にStageオブジェクトをランダムに生成
+    // 指定のインデックス位置にStageオブジェクトをランダムに生成
     GameObject GenerateStage(int chipIndex)
     {
         int nextStageChip = Random.Range(0, stageChips.Length);
 
-        GameObject stageObject = Instantiate(stageChips[nextStageChip], new Vector3(0, 0, chipIndex * StageChipSize), Quaternion.identity);
+        GameObject stageObject = Instantiate(
+            stageChips[nextStageChip],
+            new Vector3(0, 0, chipIndex * StageChipSize),
+            Quaternion.identity
+        );
 
         return stageObject;
     }
 
-    //一番古いステージを削除
+    // 一番古いステージを削除
     void DestroyOldestStage()
     {
         GameObject oldStage = generatedStageList[0];
